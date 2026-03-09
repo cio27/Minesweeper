@@ -112,6 +112,7 @@ public int countMines(int row, int col)
     return numMines;
 }
 
+// -------------------------------------------------------
 public class MSButton
 {
     private int myRow, myCol;
