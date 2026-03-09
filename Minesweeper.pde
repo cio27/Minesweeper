@@ -1,32 +1,24 @@
 import de.bezier.guido.*;
 
-// Constants
 private static final int NUM_ROWS = 20;
 private static final int NUM_COLS = 20;
 private static final int NUM_MINES = 40;
 
-private MSButton[][] buttons; // 2d array of minesweeper buttons
-private ArrayList<MSButton> mines; // ArrayList of just the minesweeper buttons that are mined
+private MSButton[][] buttons;
+private ArrayList<MSButton> mines;
 
 void setup()
 {
     size(400, 400);
     textAlign(CENTER, CENTER);
-
-    // make the manager
     Interactive.make(this);
 
-    // Initialize the 2D array
     buttons = new MSButton[NUM_ROWS][NUM_COLS];
-
-    // Create a new MSButton for each row/column pair
     for (int r = 0; r < NUM_ROWS; r++)
         for (int c = 0; c < NUM_COLS; c++)
             buttons[r][c] = new MSButton(r, c);
 
-    // Initialize mines list
     mines = new ArrayList<MSButton>();
-
     setMines();
 }
 
@@ -50,7 +42,6 @@ public void draw()
 
 public boolean isWon()
 {
-    // Win if every non-mine button has been clicked AND every mine is flagged
     for (int r = 0; r < NUM_ROWS; r++)
     {
         for (int c = 0; c < NUM_COLS; c++)
@@ -71,11 +62,9 @@ public boolean isWon()
 
 public void displayLosingMessage()
 {
-    // Reveal all mines
     for (MSButton mine : mines)
-        mine.setLabel("X");
+        mine.reveal();
 
-    // Write LOSE across the middle row
     String msg = "YOU LOSE!";
     int midRow = NUM_ROWS / 2;
     for (int c = 0; c < msg.length() && c < NUM_COLS; c++)
@@ -102,7 +91,7 @@ public int countMines(int row, int col)
     {
         for (int dc = -1; dc <= 1; dc++)
         {
-            if (dr == 0 && dc == 0) continue; // skip self
+            if (dr == 0 && dc == 0) continue;
             int nr = row + dr;
             int nc = col + dc;
             if (isValid(nr, nc) && mines.contains(buttons[nr][nc]))
@@ -112,7 +101,6 @@ public int countMines(int row, int col)
     return numMines;
 }
 
-// -------------------------------------------------------
 public class MSButton
 {
     private int myRow, myCol;
@@ -130,24 +118,21 @@ public class MSButton
         y      = myRow * height;
         myLabel = "";
         flagged = clicked = false;
-        Interactive.add(this); // register it with the manager
+        Interactive.add(this);
     }
 
-    // called by manager
     public void mousePressed()
     {
         clicked = true;
 
         if (mouseButton == RIGHT)
         {
-            // Toggle flag
             flagged = !flagged;
             if (!flagged)
-                clicked = false; // un-click when unflagging
+                clicked = false;
         }
         else if (mines.contains(this))
         {
-            // Hit a mine — game over
             displayLosingMessage();
         }
         else
@@ -155,11 +140,10 @@ public class MSButton
             int neighboring = countMines(myRow, myCol);
             if (neighboring > 0)
             {
-                setLabel(neighboring); // show number
+                setLabel(neighboring);
             }
             else
             {
-                // Recursively reveal all 8 neighbors
                 for (int dr = -1; dr <= 1; dr++)
                 {
                     for (int dc = -1; dc <= 1; dc++)
@@ -178,13 +162,13 @@ public class MSButton
     public void draw()
     {
         if (flagged)
-            fill(255, 200, 0);        // yellow = flagged
+            fill(0);
         else if (clicked && mines.contains(this))
-            fill(255, 0, 0);          // red = mine revealed
+            fill(255, 0, 0);
         else if (clicked)
-            fill(200);                // light grey = clicked
+            fill(200);
         else
-            fill(100);                // dark grey = unclicked
+            fill(100);
 
         rect(x, y, width, height);
         fill(0);
@@ -209,5 +193,11 @@ public class MSButton
     public boolean isClicked()
     {
         return clicked;
+    }
+
+    public void reveal()
+    {
+        clicked = true;
+        flagged = false;
     }
 }
